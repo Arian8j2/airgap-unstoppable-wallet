@@ -11,8 +11,17 @@
         android:id="@+id/depositCexFragment"
         android:name="io.horizontalsystems.bankwallet.modules.depositcex.DepositCexFragment"/>
     <fragment
+        android:id="@+id/signTransactionFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.confirm.SignTransactionFragment"/>
+    <fragment
+        android:id="@+id/showSignatureQrCodeFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.confirm.sign.ShowSignatureQrCodeFragment"/>
+    <fragment
         android:id="@+id/sendEvmConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationFragment"/>
+    <fragment
+        android:id="@+id/showTransactionQrCodeFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.send.ShowTransactionQrCodeFragment"/>
     <fragment
         android:id="@+id/sendEvmSettingsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsFragment" />

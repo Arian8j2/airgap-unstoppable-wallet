@@ -36,6 +36,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Caution
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.stats.StatEvent
 import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
@@ -45,10 +46,12 @@ import io.horizontalsystems.bankwallet.modules.backupalert.BackupAlert
 import io.horizontalsystems.bankwallet.modules.balance.AccountViewItem
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
+import io.horizontalsystems.bankwallet.modules.confirm.SignTransactionFragment
 import io.horizontalsystems.bankwallet.modules.contacts.screen.ConfirmationBottomSheet
 import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.qrscanner.QRScannerActivity
+import io.horizontalsystems.bankwallet.modules.send.evm.EvmRawTransactionData
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSupportedDialog
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.WalletConnectListViewModel
@@ -69,11 +72,22 @@ fun BalanceForAccount(navController: NavController, accountViewItem: AccountView
     val context = LocalContext.current
     val invalidUrlBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
-    val qrScannerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            viewModel.handleScannedData(result.data?.getStringExtra(ModuleField.SCAN_ADDRESS) ?: "")
+
+    val qrScannerLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val scannedText = result.data?.getStringExtra(ModuleField.SCAN_ADDRESS) ?: ""
+                val evmTransactionData = EvmRawTransactionData.fromJson(scannedText)
+                if (evmTransactionData != null) {
+                    navController.slideFromRight(
+                        R.id.signTransactionFragment,
+                        SignTransactionFragment.Input(evmTransactionData.toJson()),
+                    )
+                } else {
+                    viewModel.handleScannedData(scannedText)
+                }
+            }
         }
-    }
 
     viewModel.uiState.errorMessage?.let { message ->
         val view = LocalView.current

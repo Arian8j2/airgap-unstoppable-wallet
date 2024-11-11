@@ -307,7 +307,7 @@ fun ReceiveAddressScreen(
 }
 
 @Composable
-private fun QrCodeImage(address: String) {
+fun QrCodeImage(address: String) {
     val logoPainter: Painter =
         adaptiveIconPainterResource(
             id = R.mipmap.launcher_main,

@@ -51,6 +51,8 @@ import io.horizontalsystems.ethereumkit.core.LegacyGasPriceProvider
 import io.horizontalsystems.ethereumkit.core.eip1559.Eip1559GasPriceProvider
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
 import io.horizontalsystems.ethereumkit.models.GasPrice
+import io.horizontalsystems.ethereumkit.models.RawTransaction
+import io.horizontalsystems.ethereumkit.models.Signature
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.Flowable
@@ -225,6 +227,36 @@ class SendTransactionServiceEvm(
         val fullTransaction = evmKitWrapper
             .sendSingle(transactionData, gasPrice, gasLimit, nonce).await()
         return SendTransactionResult.Evm(fullTransaction)
+    }
+
+    suspend fun craftRawTransaction(): RawTransaction {
+        val transaction = transaction ?: throw Exception()
+        if (transaction.errors.isNotEmpty()) throw Exception()
+
+        val transactionData = transaction.transactionData
+        val gasPrice = transaction.gasData.gasPrice
+        val gasLimit = transaction.gasData.gasLimit
+        val nonce = transaction.nonce
+
+        return evmKitWrapper.craftSingle(transactionData, gasPrice, gasLimit, nonce)
+            .await()
+    }
+
+    suspend fun publishTransaction(
+        rawTransaction: RawTransaction,
+        signature: Signature
+    ): SendTransactionResult.Evm {
+        val fullTransaction = evmKitWrapper.evmKit.send(rawTransaction, signature)
+            .await()
+        return SendTransactionResult.Evm(fullTransaction)
+    }
+
+    fun hasSigner(): Boolean {
+        return evmKitWrapper.signer != null
+    }
+
+    fun getBlockchainType(): BlockchainType {
+        return token.blockchainType
     }
 
     fun decorate(transactionData: TransactionData): TransactionDecoration? {

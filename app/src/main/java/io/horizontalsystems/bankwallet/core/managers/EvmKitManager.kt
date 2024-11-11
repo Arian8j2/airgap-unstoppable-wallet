@@ -16,6 +16,7 @@ import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.FullTransaction
 import io.horizontalsystems.ethereumkit.models.GasPrice
+import io.horizontalsystems.ethereumkit.models.RawTransaction
 import io.horizontalsystems.ethereumkit.models.RpcSource
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -233,4 +234,12 @@ class EvmKitWrapper(
         }
     }
 
+    fun craftSingle(
+        transactionData: TransactionData,
+        gasPrice: GasPrice,
+        gasLimit: Long,
+        nonce: Long?
+    ): Single<RawTransaction> {
+        return evmKit.rawTransaction(transactionData, gasPrice, gasLimit, nonce)
+    }
 }

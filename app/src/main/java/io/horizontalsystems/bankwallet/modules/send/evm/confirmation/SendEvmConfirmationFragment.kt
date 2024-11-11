@@ -21,10 +21,13 @@ import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.core.setNavigationResultX
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.stats.StatEvent
 import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.modules.confirm.ConfirmTransactionScreen
+import io.horizontalsystems.bankwallet.modules.send.ShowTransactionQrCodeFragment
+import io.horizontalsystems.bankwallet.modules.send.evm.EvmRawTransactionData
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
@@ -96,6 +99,20 @@ private fun SendEvmConfirmationScreen(
             input.blockchainType,
         )
     )
+    val showTransactionQrCode = suspend {
+        val sendTransactionService = viewModel.sendTransactionService
+        val rawTransaction = sendTransactionService.craftRawTransaction()
+        val evmData = EvmRawTransactionData(
+            rawTransaction,
+            sendTransactionService.getBlockchainType()
+        )
+        navController.slideFromRight(
+            R.id.showTransactionQrCodeFragment,
+            ShowTransactionQrCodeFragment.Input(
+                evmData.toJson(),
+            )
+        )
+    }
     val uiState = viewModel.uiState
 
     ConfirmTransactionScreen(
@@ -120,9 +137,17 @@ private fun SendEvmConfirmationScreen(
 
                     coroutineScope.launch {
                         buttonEnabled = false
-                        HudHelper.showInProcessMessage(view, R.string.Send_Sending, SnackbarDuration.INDEFINITE)
 
                         val result = try {
+                            if (!viewModel.sendTransactionService.hasSigner()) {
+                                showTransactionQrCode()
+                                return@launch
+                            }
+                            HudHelper.showInProcessMessage(
+                                view,
+                                R.string.Send_Sending,
+                                SnackbarDuration.INDEFINITE
+                            )
                             logger.info("sending tx")
                             viewModel.send()
                             logger.info("success")

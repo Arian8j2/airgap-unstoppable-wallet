@@ -370,9 +370,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
     Row(
         modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 16.dp)
     ) {
-        // if (viewItem.isWatchAccount) {
-        // TODO: create a toggle for watch account to make send button visible
-        if (false) {
+        if (viewItem.isWatchAccount && !viewItem.accountSupportsAirGap) {
             ButtonPrimaryDefault(
                 modifier = Modifier.weight(1f),
                 title = stringResource(R.string.Balance_Address),

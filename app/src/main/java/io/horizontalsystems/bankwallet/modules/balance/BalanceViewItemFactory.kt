@@ -37,6 +37,7 @@ data class BalanceViewItem(
     val swapEnabled: Boolean = false,
     val errorMessage: String?,
     val isWatchAccount: Boolean,
+    val accountSupportsAirGap: Boolean,
     val warning: WarningText?
 )
 
@@ -177,6 +178,7 @@ class BalanceViewItemFactory {
         currency: Currency,
         hideBalance: Boolean,
         watchAccount: Boolean,
+        supportsAirGap: Boolean,
         balanceViewType: BalanceViewType
     ): BalanceViewItem {
         val wallet = item.wallet
@@ -266,6 +268,7 @@ class BalanceViewItemFactory {
             swapEnabled = state is AdapterState.Synced,
             errorMessage = (state as? AdapterState.NotSynced)?.error?.message,
             isWatchAccount = watchAccount,
+            accountSupportsAirGap = supportsAirGap,
             warning = item.warning?.warningText
         )
     }

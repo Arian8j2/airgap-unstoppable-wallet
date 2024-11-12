@@ -14,6 +14,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinServiceFactory
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.stats.StatPage
@@ -44,8 +45,8 @@ class SignTransactionFragment : BaseComposeFragment() {
         // it's required for SendTransactionServiceEvm
         if (evmKitManager.evmKitWrapper == null) {
             val view = LocalView.current
-            val errorMsg = String.format(
-                "Enable %s blockchain in Coin manager to continue",
+            val errorMsg = Translator.getString(
+                R.string.AirGap_SignTransaction_Error_NoKit,
                 evmData.blockchainType.title
             )
             HudHelper.showErrorMessage(view, errorMsg)
@@ -69,7 +70,7 @@ private fun SignTransactionScreen(
     evmData: EvmRawTransactionData
 ) {
     ConfirmTransactionScreen(
-        title = "Confirm Offline Transaction",
+        title = stringResource(R.string.AirGap_SignTransaction_Title),
         onClickBack = { navController.popBackStack() },
         onClickSettings = null,
         onClickClose = null,

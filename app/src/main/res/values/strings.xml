@@ -92,6 +92,8 @@
     <string name="AirGap_Transaction_Error_WrongSignature">Scanned QR code is not a valid signature</string>
     <string name="AirGap_Button_ScanSignature">Scan Signature QR Code</string>
 
+    <string name="AirGap_SignTransaction_Title">Sign Transaction</string>
+    <string name="AirGap_SignTransaction_Error_NoKit">Enable %s blockchain in Coin manager to be able to sign this transaction</string>
     <string name="AirGap_Signature_Title">Signature QR Code</string>
     <string name="AirGap_Signature_Hint">Scan this QR code with your online wallet to publish it</string>
 

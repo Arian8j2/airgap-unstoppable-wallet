@@ -133,7 +133,8 @@ private fun SendEvmConfirmationScreen(
                         buttonEnabled = false
 
                         val result = try {
-                            if (!viewModel.sendTransactionService.hasSigner()) {
+                            val isWatchWallet = !viewModel.sendTransactionService.hasSigner()
+                            if (isWatchWallet) {
                                 showTransactionQrCode()
                                 return@launch
                             }

@@ -22,9 +22,9 @@ class ShowSignatureQrCodeFragment : BaseComposeFragment() {
             .signatureJson
         ShowQrCodeScreen(
             navController,
-            title = "Signature Qr code",
+            title = stringResource(R.string.AirGap_Signature_Title),
             qrData = signatureJson,
-            hint = "Scan this QR code with your online wallet to publish it",
+            hint = stringResource(R.string.AirGap_Signature_Hint),
             buttonsSlot = {
                 ButtonPrimaryYellow(
                     modifier = Modifier

@@ -116,7 +116,7 @@ private fun QrTransactionNextButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp),
-        title = stringResource(R.string.Send_DialogProceed),
+        title = stringResource(R.string.AirGap_Button_ScanSignature),
         onClick = {
             qrScannerLauncher.launch(QRScannerActivity.getScanQrIntent(context, false))
         }

@@ -86,6 +86,14 @@
     <string name="AccountRecovery_MigrationRecommended">This wallet seems to use a non-standard character in its recovery phrase and/or a passphrase. If you do not see a balance or transactions please read below for details.\n\nCLICK TO GET MORE INFO</string>
     <string name="AccountRecovery_MigrationRequired">This is a non-standard wallet. \n\nCLICK TO GET MORE INFO</string>
 
+    <!--Airgap-->
+    <string name="AirGap_Transaction_Title">Transaction QR Code</string>
+    <string name="AirGap_Transaction_Hint">Scan this QR code with your offline wallet to sign it</string>
+    <string name="AirGap_Transaction_Error_WrongSignature">Scanned QR code is not a valid signature</string>
+
+    <string name="AirGap_Signature_Title">Signature QR Code</string>
+    <string name="AirGap_Signature_Hint">Scan this QR code with your online wallet to publish it</string>
+
     <!--Intro-->
 
     <string name="Intro_Wallet_Screen1Description">Be Unstoppable</string>

@@ -45,9 +45,9 @@ class ShowTransactionQrCodeFragment : BaseComposeFragment() {
         val evmData = EvmRawTransactionData.fromJson(evmDataJson)!!
         ShowQrCodeScreen(
             navController,
-            title = "Transaction Qr Code",
+            title = stringResource(R.string.AirGap_Transaction_Title),
             qrData = evmDataJson,
-            hint = "Scan this QR code with your offline wallet to sign it",
+            hint = stringResource(R.string.AirGap_Transaction_Hint),
             buttonsSlot = {
                 QrTransactionNextButton(
                     navController,
@@ -83,7 +83,7 @@ private fun QrTransactionNextButton(
             val signature = parseSignatureFromJson(scannedText)
 
             if (signature == null) {
-                HudHelper.showErrorMessage(view, "Scanned Qr code is not a valid signature")
+                HudHelper.showErrorMessage(view, R.string.AirGap_Transaction_Error_WrongSignature)
             } else {
                 scannedSignature.value = signature
             }
@@ -107,7 +107,7 @@ private fun QrTransactionNextButton(
         } catch (e: Exception) {
             HudHelper.showErrorMessage(view, e.javaClass.name)
         } catch (e: JsonRpc.ResponseError.RpcError) {
-            val errorMsg = String.format("Rpc Error: %s", e.error.message)
+            val errorMsg = String.format("%s: %s", e.javaClass.name, e.error.message)
             HudHelper.showErrorMessage(view, errorMsg)
         }
     }

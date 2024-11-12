@@ -35,7 +35,7 @@ fun ShowQrCodeScreen(
         backgroundColor = ComposeAppTheme.colors.tyler,
         topBar = {
             AppBar(
-                title = title, // stringResource(R.string.Settings_Donate_Addresses),
+                title = title,
                 navigationIcon = {
                     HsBackButton(onClick = { navController.popBackStack() })
                 }

@@ -366,6 +366,11 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             stat(page = StatPage.TokenPage, event = StatEvent.Open(StatPage.BackupRequired))
         }
     }
+    val balanceSendButtonTitle = if (viewItem.accountSupportsAirGap) {
+        R.string.Balance_SendAirGap
+    } else {
+        R.string.Balance_Send
+    }
 
     Row(
         modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 16.dp)
@@ -379,7 +384,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
         } else {
             ButtonPrimaryYellow(
                 modifier = Modifier.weight(1f),
-                title = stringResource(R.string.Balance_Send),
+                title = stringResource(balanceSendButtonTitle),
                 onClick = {
                     val sendTitle = Translator.getString(R.string.Send_Title, viewItem.wallet.token.fullCoin.coin.code)
                     navController.slideFromRight(

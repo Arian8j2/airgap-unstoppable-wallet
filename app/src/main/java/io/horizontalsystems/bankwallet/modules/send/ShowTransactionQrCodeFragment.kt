@@ -25,7 +25,6 @@ import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.SendTransactionServiceEvm
 import io.horizontalsystems.bankwallet.modules.qrscanner.QRScannerActivity
 import io.horizontalsystems.bankwallet.modules.send.evm.EvmRawTransactionData
-import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationFragment
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
@@ -40,37 +39,38 @@ import kotlinx.parcelize.Parcelize
 class ShowTransactionQrCodeFragment : BaseComposeFragment() {
     @Composable
     override fun GetContent(navController: NavController) {
-        val evmDataJson = navController.requireInput<Input>()
-            .evmDataJson
-        val evmData = EvmRawTransactionData.fromJson(evmDataJson)!!
+        val input = navController.requireInput<Input>()
+        val evmData = EvmRawTransactionData.fromJson(input.evmDataJson)!!
         ShowQrCodeScreen(
             navController,
             title = stringResource(R.string.AirGap_Transaction_Title),
-            qrData = evmDataJson,
+            qrData = input.evmDataJson,
             hint = stringResource(R.string.AirGap_Transaction_Hint),
             buttonsSlot = {
                 QrTransactionNextButton(
                     navController,
                     evmData,
+                    input.successNavigationResult
                 )
             }
         )
     }
 
     @Parcelize
-    data class Input(val evmDataJson: String) : Parcelable
+    data class Input(val evmDataJson: String, val successNavigationResult: Parcelable) : Parcelable
 }
 
 @Composable
 private fun QrTransactionNextButton(
     navController: NavController,
     evmData: EvmRawTransactionData,
+    successNavigationResult: Parcelable
 ) {
     val sendTransactionService = SendTransactionServiceEvm(evmData.blockchainType)
     val view = LocalView.current
     val context = LocalContext.current
 
-    var scannedSignature = remember { mutableStateOf<Signature?>(null) }
+    val scannedSignature = remember { mutableStateOf<Signature?>(null) }
 
     val coroutineScope = rememberCoroutineScope()
     val qrScannerLauncher =
@@ -100,8 +100,7 @@ private fun QrTransactionNextButton(
 
             withContext(Dispatchers.Main) {
                 navController.popBackStack()
-                val result = SendEvmConfirmationFragment.Result(true)
-                navController.setNavigationResultX(result)
+                navController.setNavigationResultX(successNavigationResult)
                 navController.popBackStack()
             }
         } catch (e: Exception) {

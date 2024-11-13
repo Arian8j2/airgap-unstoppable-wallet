@@ -26,6 +26,7 @@ import io.horizontalsystems.bankwallet.core.stats.StatEvent
 import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.modules.confirm.ConfirmTransactionScreen
+import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.SendTransactionServiceEvm
 import io.horizontalsystems.bankwallet.modules.send.ShowTransactionQrCodeFragment
 import io.horizontalsystems.bankwallet.modules.send.evm.EvmRawTransactionData
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
@@ -99,20 +100,6 @@ private fun SendEvmConfirmationScreen(
             input.blockchainType,
         )
     )
-    val showTransactionQrCode = suspend {
-        val sendTransactionService = viewModel.sendTransactionService
-        val rawTransaction = sendTransactionService.craftRawTransaction()
-        val evmData = EvmRawTransactionData(
-            rawTransaction,
-            sendTransactionService.getBlockchainType()
-        )
-        navController.slideFromRight(
-            R.id.showTransactionQrCodeFragment,
-            ShowTransactionQrCodeFragment.Input(
-                evmData.toJson(),
-            )
-        )
-    }
     val uiState = viewModel.uiState
 
     ConfirmTransactionScreen(
@@ -139,9 +126,13 @@ private fun SendEvmConfirmationScreen(
                         buttonEnabled = false
 
                         val result = try {
-                            val isWatchWallet = !viewModel.sendTransactionService.hasSigner()
-                            if (isWatchWallet) {
-                                showTransactionQrCode()
+                            val isAirGap = !viewModel.sendTransactionService.hasSigner()
+                            if (isAirGap) {
+                                showTransactionQrCode(
+                                    navController,
+                                    viewModel.sendTransactionService,
+                                    SendEvmConfirmationFragment.Result(true)
+                                )
                                 return@launch
                             }
                             HudHelper.showInProcessMessage(
@@ -181,4 +172,23 @@ private fun SendEvmConfirmationScreen(
             StatPage.SendConfirmation
         )
     }
+}
+
+suspend fun showTransactionQrCode(
+    navController: NavController,
+    sendTransactionService: SendTransactionServiceEvm,
+    successNavigationResult: Parcelable
+) {
+    val rawTransaction = sendTransactionService.craftRawTransaction()
+    val evmData = EvmRawTransactionData(
+        rawTransaction,
+        sendTransactionService.getBlockchainType()
+    )
+    navController.slideFromRight(
+        R.id.showTransactionQrCodeFragment,
+        ShowTransactionQrCodeFragment.Input(
+            evmData.toJson(),
+            successNavigationResult
+        )
+    )
 }

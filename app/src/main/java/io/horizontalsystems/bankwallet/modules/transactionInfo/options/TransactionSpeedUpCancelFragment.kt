@@ -21,6 +21,7 @@ import io.horizontalsystems.bankwallet.core.setNavigationResultX
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.modules.confirm.ConfirmTransactionScreen
+import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.showTransactionQrCode
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.core.SnackbarDuration
@@ -100,9 +101,23 @@ private fun TransactionSpeedUpCancelScreen(
 
                     coroutineScope.launch {
                         buttonEnabled = false
-                        HudHelper.showInProcessMessage(view, R.string.Send_Sending, SnackbarDuration.INDEFINITE)
 
                         val result = try {
+                            val isAirGap = !viewModel.sendTransactionService.hasSigner()
+                            if (isAirGap) {
+                                showTransactionQrCode(
+                                    navController,
+                                    viewModel.sendTransactionService,
+                                    TransactionSpeedUpCancelFragment.Result(true)
+                                )
+                                return@launch
+                            }
+
+                            HudHelper.showInProcessMessage(
+                                view,
+                                R.string.Send_Sending,
+                                SnackbarDuration.INDEFINITE
+                            )
                             logger.info("sending tx")
                             viewModel.send()
                             logger.info("success")

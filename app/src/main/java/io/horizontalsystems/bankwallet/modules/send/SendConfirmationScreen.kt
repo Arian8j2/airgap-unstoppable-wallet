@@ -78,7 +78,8 @@ fun SendConfirmationScreen(
     memo: String?,
     rbfEnabled: Boolean?,
     onClickSend: () -> Unit,
-    sendEntryPointDestId: Int
+    sendEntryPointDestId: Int,
+    isScreen: Boolean = true
 ) {
     val closeUntilDestId = if (sendEntryPointDestId == 0) {
         R.id.sendXFragment
@@ -124,20 +125,26 @@ fun SendConfirmationScreen(
     }
 
     Column(Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-        AppBar(
-            title = stringResource(R.string.Send_Confirmation_Title),
-            navigationIcon = {
-                HsBackButton(onClick = { navController.popBackStack() })
-            },
-            menuItems = listOf()
-        )
+        if (isScreen) {
+            AppBar(
+                title = stringResource(R.string.Send_Confirmation_Title),
+                navigationIcon = {
+                    HsBackButton(onClick = { navController.popBackStack() })
+                },
+                menuItems = listOf()
+            )
+        }
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
             Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .padding(bottom = 106.dp)
+                modifier = Modifier.apply {
+                    if (isScreen) {
+                        this.verticalScroll(rememberScrollState())
+                            .padding(bottom = 106.dp)
+
+                    }
+                }
             ) {
                 Spacer(modifier = Modifier.height(12.dp))
                 val topSectionItems = buildList<@Composable () -> Unit> {
@@ -222,19 +229,20 @@ fun SendConfirmationScreen(
 
                 CellUniversalLawrenceSection(bottomSectionItems)
             }
+            if (isScreen) {
+                SendButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
+                    sendResult = sendResult,
+                    onClickSend = {
+                        onClickSend()
 
-            SendButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
-                sendResult = sendResult,
-                onClickSend = {
-                    onClickSend()
-
-                    stat(page = StatPage.SendConfirmation, event = StatEvent.Send)
-                }
-            )
+                        stat(page = StatPage.SendConfirmation, event = StatEvent.Send)
+                    }
+                )
+            }
         }
     }
 }

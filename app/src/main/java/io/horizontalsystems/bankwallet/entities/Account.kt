@@ -333,6 +333,7 @@ sealed class AccountType : Parcelable {
     val supportsAirGap: Boolean
         get() = when (this) {
             is EvmAddress -> true
+            is BitcoinAddress -> true
             else -> false
         }
 

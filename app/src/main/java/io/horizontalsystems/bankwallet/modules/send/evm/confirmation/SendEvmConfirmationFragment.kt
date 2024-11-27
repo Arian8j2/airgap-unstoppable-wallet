@@ -25,10 +25,10 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.stats.StatEvent
 import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.modules.airgap.ShowAirGapTransactionFragment
+import io.horizontalsystems.bankwallet.modules.airgap.transaction.AirGapEvmTransaction
 import io.horizontalsystems.bankwallet.modules.confirm.ConfirmTransactionScreen
 import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.SendTransactionServiceEvm
-import io.horizontalsystems.bankwallet.modules.send.ShowTransactionQrCodeFragment
-import io.horizontalsystems.bankwallet.modules.send.evm.EvmRawTransactionData
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
@@ -179,15 +179,21 @@ suspend fun showTransactionQrCode(
     sendTransactionService: SendTransactionServiceEvm,
     successNavigationResult: Parcelable
 ) {
+    val blockchainType = sendTransactionService.getBlockchainType()
     val rawTransaction = sendTransactionService.craftRawTransaction()
-    val evmData = EvmRawTransactionData(
-        rawTransaction,
-        sendTransactionService.getBlockchainType()
+    val airGapTransaction = AirGapEvmTransaction(
+        blockchainType = blockchainType,
+        gasPrice = rawTransaction.gasPrice,
+        gasLimit = rawTransaction.gasLimit,
+        to = rawTransaction.to.hex,
+        value = rawTransaction.value.toString(),
+        nonce = rawTransaction.nonce,
+        data = rawTransaction.data
     )
     navController.slideFromRight(
-        R.id.showTransactionQrCodeFragment,
-        ShowTransactionQrCodeFragment.Input(
-            evmData.toJson(),
+        R.id.showAirGapTransactionFragment,
+        ShowAirGapTransactionFragment.Input(
+            airGapTransaction,
             successNavigationResult
         )
     )

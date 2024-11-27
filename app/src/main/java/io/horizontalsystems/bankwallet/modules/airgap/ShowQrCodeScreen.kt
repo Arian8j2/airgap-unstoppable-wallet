@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.send
+package io.horizontalsystems.bankwallet.modules.airgap
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

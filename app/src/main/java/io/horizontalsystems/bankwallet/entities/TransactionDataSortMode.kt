@@ -24,4 +24,11 @@ enum class TransactionDataSortMode(val raw: String) {
             Bip69 -> R.string.SettingsSecurity_SortingBip69Description
         }
 
+//    companion object {
+//        fun fromRaw(input: String): TransactionDataSortMode? {
+//            return values().find {
+//                it.raw == input
+//            }
+//        }
+//    }
 }

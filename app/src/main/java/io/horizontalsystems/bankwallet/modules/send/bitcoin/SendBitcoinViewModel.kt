@@ -17,6 +17,8 @@ import io.horizontalsystems.bankwallet.core.adapters.BitcoinFeeInfo
 import io.horizontalsystems.bankwallet.core.managers.BtcBlockchainManager
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.airgap.transaction.AirGapBitcoinTransaction
+import io.horizontalsystems.bankwallet.modules.airgap.transaction.SerializedUnspentOutput
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.send.SendConfirmationData
 import io.horizontalsystems.bankwallet.modules.send.SendResult
@@ -248,6 +250,33 @@ class SendBitcoinViewModel(
         viewModelScope.launch {
             send()
         }
+    }
+
+    fun createAirGapInput(): AirGapBitcoinTransaction {
+        val info = adapter.bitcoinFeeInfo(
+            amountState.amount!!,
+            feeRateState.feeRate!!,
+            addressState.validAddress!!.hex,
+            memo,
+            customUnspentOutputs,
+            pluginState.pluginData
+        )!!
+        val outputs = info.unspentOutputs.map {
+            SerializedUnspentOutput(
+                txHash = it.output.transactionHash,
+                txIndex = it.output.index,
+                value = it.output.value,
+                address = it.output.address!!
+            )
+        }
+        return AirGapBitcoinTransaction(
+            amountState.amount!!,
+            addressState.validAddress!!.hex,
+            feeRateState.feeRate!!,
+            outputs,
+            btcBlockchainManager.transactionSortMode(adapter.blockchainType),
+            localStorage.rbfEnabled
+        )
     }
 
     private suspend fun send() = withContext(Dispatchers.IO) {

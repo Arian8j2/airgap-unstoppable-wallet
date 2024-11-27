@@ -21,6 +21,7 @@ import io.horizontalsystems.bitcoincore.AbstractKit
 import io.horizontalsystems.bitcoincore.BitcoinCore
 import io.horizontalsystems.bitcoincore.core.IPluginData
 import io.horizontalsystems.bitcoincore.models.Address
+import io.horizontalsystems.bitcoincore.models.PublicKey
 import io.horizontalsystems.bitcoincore.models.TransactionDataSortType
 import io.horizontalsystems.bitcoincore.models.TransactionFilterType
 import io.horizontalsystems.bitcoincore.models.TransactionInfo
@@ -57,7 +58,6 @@ abstract class BitcoinBaseAdapter(
     private val confirmationsThreshold: Int,
     protected val decimal: Int = 8
 ) : IAdapter, ITransactionsAdapter, IBalanceAdapter, IReceiveAdapter {
-
     private val scope = CoroutineScope(Dispatchers.Default)
 
     abstract val satoshisInBitcoin: BigDecimal
@@ -271,6 +271,67 @@ abstract class BitcoinBaseAdapter(
 
                 AdapterState.Syncing(progress, lastBlockDate)
             }
+        }
+    }
+
+    fun sign(
+        amount: BigDecimal,
+        address: String,
+        memo: String?,
+        feeRate: Int,
+        unspentOutputs: List<UnspentOutput>?,
+        pluginData: Map<Byte, IPluginData>?,
+        transactionSorting: TransactionDataSortMode?,
+        rbfEnabled: Boolean,
+    ): FullTransaction {
+        val sortingType = getTransactionSortingType(transactionSorting)
+        return kit.sign(
+            address = address,
+            memo = memo,
+            value = (amount * satoshisInBitcoin).toLong(),
+            senderPay = true,
+            feeRate = feeRate,
+            sortType = sortingType,
+            unspentOutputs = unspentOutputs,
+            pluginData = pluginData ?: mapOf(),
+            rbfEnabled = rbfEnabled
+        )
+    }
+
+    fun getPublicKey(): PublicKey = kit.receivePublicKey()
+
+    fun publish(transaction: FullTransaction) {
+        kit.publish(transaction)
+    }
+
+    fun bitcoinFeeInfoWithSpecificOutputs(
+        amount: BigDecimal,
+        feeRate: Int,
+        address: String?,
+        memo: String?,
+        unspentOutputs: List<UnspentOutput>,
+        pluginData: Map<Byte, IPluginData>?
+    ): BitcoinFeeInfo? {
+        return try {
+            val satoshiAmount = (amount * satoshisInBitcoin).toLong()
+            kit.sendInfoWithSpecificOutputs(
+                value = satoshiAmount,
+                address = address,
+                memo = memo,
+                senderPay = true,
+                feeRate = feeRate,
+                unspentOutputs = unspentOutputs,
+                pluginData = pluginData ?: mapOf()
+            ).let {
+                BitcoinFeeInfo(
+                    unspentOutputs = it.unspentOutputs,
+                    fee = satoshiToBTC(it.fee),
+                    changeValue = satoshiToBTC(it.changeValue),
+                    changeAddress = it.changeAddress
+                )
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 

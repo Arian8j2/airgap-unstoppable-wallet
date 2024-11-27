@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.confirm.sign
+package io.horizontalsystems.bankwallet.modules.airgap
 
 import android.os.Parcelable
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +11,6 @@ import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.requireInput
-import io.horizontalsystems.bankwallet.modules.send.ShowQrCodeScreen
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import kotlinx.parcelize.Parcelize
 

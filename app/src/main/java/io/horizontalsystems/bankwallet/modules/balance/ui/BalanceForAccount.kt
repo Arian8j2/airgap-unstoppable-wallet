@@ -42,16 +42,15 @@ import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.entities.ViewState
+import io.horizontalsystems.bankwallet.modules.airgap.AirGapTransaction
 import io.horizontalsystems.bankwallet.modules.backupalert.BackupAlert
 import io.horizontalsystems.bankwallet.modules.balance.AccountViewItem
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
-import io.horizontalsystems.bankwallet.modules.confirm.SignTransactionFragment
 import io.horizontalsystems.bankwallet.modules.contacts.screen.ConfirmationBottomSheet
 import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.qrscanner.QRScannerActivity
-import io.horizontalsystems.bankwallet.modules.send.evm.EvmRawTransactionData
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSupportedDialog
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.WalletConnectListViewModel
@@ -60,6 +59,7 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.title3_leah
+import io.horizontalsystems.bankwallet.modules.airgap.SignAirGapTransactionFragment
 import io.horizontalsystems.core.helpers.HudHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -77,11 +77,11 @@ fun BalanceForAccount(navController: NavController, accountViewItem: AccountView
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val scannedText = result.data?.getStringExtra(ModuleField.SCAN_ADDRESS) ?: ""
-                val evmTransactionData = EvmRawTransactionData.fromJson(scannedText)
-                if (evmTransactionData != null) {
+                val airGapTransaction = AirGapTransaction.fromJson(scannedText)
+                if (airGapTransaction != null) {
                     navController.slideFromRight(
-                        R.id.signTransactionFragment,
-                        SignTransactionFragment.Input(evmTransactionData.toJson()),
+                        R.id.signAirGapTransactionFragment,
+                        SignAirGapTransactionFragment.Input(airGapTransaction),
                     )
                 } else {
                     viewModel.handleScannedData(scannedText)

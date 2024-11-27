@@ -40,6 +40,8 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionType
 import io.horizontalsystems.binancechainkit.BinanceChainKit
 import io.horizontalsystems.bitcoincore.core.IPluginData
+import io.horizontalsystems.bitcoincore.models.PublicKey
+import io.horizontalsystems.bitcoincore.storage.UnspentOutput
 import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
@@ -57,6 +59,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 import java.util.Date
+import io.horizontalsystems.bitcoincore.storage.FullTransaction as BitcoinFullTransaction
 import io.horizontalsystems.solanakit.models.Address as SolanaAddress
 import io.horizontalsystems.tronkit.models.Address as TronAddress
 
@@ -360,6 +363,30 @@ interface ISendBitcoinAdapter {
         rbfEnabled: Boolean,
         logger: AppLogger
     ): Single<Unit>
+
+    fun sign(
+        amount: BigDecimal,
+        address: String,
+        memo: String?,
+        feeRate: Int,
+        unspentOutputs: List<UnspentOutput>?,
+        pluginData: Map<Byte, IPluginData>?,
+        transactionSorting: TransactionDataSortMode?,
+        rbfEnabled: Boolean,
+    ): BitcoinFullTransaction
+
+    fun getPublicKey(): PublicKey
+
+    fun bitcoinFeeInfoWithSpecificOutputs(
+        amount: BigDecimal,
+        feeRate: Int,
+        address: String?,
+        memo: String?,
+        unspentOutputs: List<UnspentOutput>,
+        pluginData: Map<Byte, IPluginData>?
+    ): BitcoinFeeInfo?
+
+    fun publish(transaction: BitcoinFullTransaction)
 }
 
 interface ISendEthereumAdapter {

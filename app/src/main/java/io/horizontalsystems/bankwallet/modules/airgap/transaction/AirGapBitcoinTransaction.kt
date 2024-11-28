@@ -7,8 +7,6 @@ import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.TransactionDataSortMode
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.airgap.AirGapSignature
-import io.horizontalsystems.bankwallet.modules.airgap.AirGapTransaction
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendConfirmationScreen
 import io.horizontalsystems.bitcoincore.models.PublicKey

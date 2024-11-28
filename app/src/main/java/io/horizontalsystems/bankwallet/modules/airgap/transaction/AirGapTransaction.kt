@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.airgap
+package io.horizontalsystems.bankwallet.modules.airgap.transaction
 
 import android.os.Parcel
 import android.os.Parcelable
@@ -13,7 +13,7 @@ import kotlinx.serialization.modules.SerializersModule
 import java.math.BigDecimal
 
 @Serializable
-abstract class AirGapSignature {
+sealed class AirGapSignature {
     companion object {
         fun fromJson(input: String): AirGapSignature =
             getConfiguredJson().decodeFromString(input)
@@ -24,7 +24,7 @@ abstract class AirGapSignature {
 }
 
 @Serializable
-abstract class AirGapTransaction : Parcelable {
+sealed class AirGapTransaction : Parcelable {
     @Composable
     abstract fun ShowSigningConfirmationScreen(navController: NavController)
 

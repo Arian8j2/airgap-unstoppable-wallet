@@ -42,7 +42,7 @@ import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.entities.ViewState
-import io.horizontalsystems.bankwallet.modules.airgap.AirGapTransaction
+import io.horizontalsystems.bankwallet.modules.airgap.transaction.AirGapTransaction
 import io.horizontalsystems.bankwallet.modules.backupalert.BackupAlert
 import io.horizontalsystems.bankwallet.modules.balance.AccountViewItem
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule

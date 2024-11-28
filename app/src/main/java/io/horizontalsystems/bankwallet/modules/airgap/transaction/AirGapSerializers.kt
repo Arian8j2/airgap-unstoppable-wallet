@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.airgap
+package io.horizontalsystems.bankwallet.modules.airgap.transaction
 
 import io.horizontalsystems.ethereumkit.models.GasPrice
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -98,5 +98,6 @@ object BigDecimalSerializer : KSerializer<BigDecimal> {
 
     override fun serialize(encoder: Encoder, value: BigDecimal) =
         encoder.encodeString(value.toString())
+
     override fun deserialize(decoder: Decoder): BigDecimal = BigDecimal(decoder.decodeString())
 }

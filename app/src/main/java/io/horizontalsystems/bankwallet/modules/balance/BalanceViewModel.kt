@@ -275,13 +275,12 @@ class BalanceViewModel(
     }
 
     private fun handleAddressData(text: String) {
-        if (text.contains("//")) {
+        ToncoinUriParser.getAddress(text)?.let {
             //handle this type of uri ton://transfer/<address>
-            val toncoinAddress = ToncoinUriParser.getAddress(text) ?: return
             openSendTokenSelect = OpenSendTokenSelect(
                 blockchainTypes = listOf(BlockchainType.Ton),
                 tokenTypes = null,
-                address = toncoinAddress,
+                address = it,
                 amount = null
             )
             emitState()

@@ -17,6 +17,7 @@ object WatchAddressModule {
         add(BlockchainType.Litecoin)
         add(BlockchainType.Dash)
         add(BlockchainType.ECash)
+        add(BlockchainType.Solana)
     }
 
     class Factory : ViewModelProvider.Factory {

@@ -8,7 +8,8 @@ This fork adds air gap feature like [Airgap Wallet](https://github.com/airgap-it
 ### Current supported actions:
 * Sending any token on EVM chains (Ethereum, Bsc, Polygon, Avalanche, Optimism, Base, ArbitrumOne, Gnosis, Fantom)
 * Speed up or cancel transactions on EVM chains
-* Sending Bitcoin (WIP)
+* Sending Bitcoin (Not Tested)
+* Sending Solana
 
 # Setup
 To get started, you will need two devices:

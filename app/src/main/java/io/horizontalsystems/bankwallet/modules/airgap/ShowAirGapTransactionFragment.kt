@@ -121,6 +121,8 @@ private fun QrTransactionNextButton(
             } catch (e: JsonRpc.ResponseError.RpcError) {
                 val errorMsg = String.format("%s: %s", e.javaClass.name, e.error.message)
                 HudHelper.showErrorMessage(view, errorMsg)
+            } catch (e: Throwable) {
+                HudHelper.showErrorMessage(view, e.message ?: "Something went wrong")
             }
         }
 

@@ -8,6 +8,7 @@ import io.horizontalsystems.bankwallet.core.managers.SolanaKitWrapper
 import io.horizontalsystems.solanakit.SolanaKit
 import io.horizontalsystems.solanakit.models.Address
 import io.horizontalsystems.solanakit.models.FullTransaction
+import io.horizontalsystems.solanakit.transactions.RawTransaction
 import io.reactivex.Flowable
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx2.asFlowable
@@ -56,6 +57,14 @@ class SolanaAdapter(kitWrapper: SolanaKitWrapper) : BaseSolanaAdapter(kitWrapper
 
         return solanaKit.sendSol(to, amount.movePointRight(decimal).toLong(), signer)
     }
+
+    override fun craftSendTransaction(
+        fromAddress: Address,
+        toAddress: Address,
+        amount: BigDecimal,
+        recentBlockHash: String
+    ): RawTransaction =
+        solanaKit.craftSendSolTransaction(fromAddress, toAddress, amount.movePointRight(decimal).toLong(), recentBlockHash)
 
     private fun convertToAdapterState(syncState: SolanaKit.SyncState): AdapterState =
         when (syncState) {

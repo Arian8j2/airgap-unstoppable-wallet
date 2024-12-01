@@ -12,9 +12,11 @@ import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ISendSolanaAdapter
 import io.horizontalsystems.bankwallet.core.LocalizedException
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
+import io.horizontalsystems.bankwallet.core.adapters.BaseSolanaAdapter
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.airgap.transaction.AirGapSolanaTransaction
 import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.send.SendConfirmationData
@@ -114,6 +116,15 @@ class SendSolanaViewModel(
         viewModelScope.launch {
             send()
         }
+    }
+
+    suspend fun craftAirGapTransaction(): AirGapSolanaTransaction = withContext(Dispatchers.IO) {
+        val blockData = (adapter as BaseSolanaAdapter).recentBlockData
+        return@withContext AirGapSolanaTransaction(
+            amount = decimalAmount,
+            to = addressState.address!!.hex,
+            recentBlockHash = blockData.hash
+        )
     }
 
     fun hasConnection(): Boolean {

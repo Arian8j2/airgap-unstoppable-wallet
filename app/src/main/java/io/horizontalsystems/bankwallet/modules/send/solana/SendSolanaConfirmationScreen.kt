@@ -6,9 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.modules.airgap.ShowAirGapTransactionFragment
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
 import io.horizontalsystems.bankwallet.modules.send.SendConfirmationScreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun SendSolanaConfirmationScreen(
@@ -48,7 +53,22 @@ fun SendSolanaConfirmationScreen(
         lockTimeInterval = confirmationData.lockTimeInterval,
         memo = confirmationData.memo,
         rbfEnabled = confirmationData.rbfEnabled,
-        onClickSend = sendViewModel::onClickSend,
+        onClickSend = {
+            if (sendViewModel.wallet.account.type.supportsAirGap) {
+                sendViewModel.viewModelScope.launch {
+                    val airGapTransaction = sendViewModel.craftAirGapTransaction()
+                    navController.slideFromRight(
+                        R.id.showAirGapTransactionFragment,
+                        ShowAirGapTransactionFragment.Input(
+                            airGapTransaction,
+                            null
+                        )
+                    )
+                }
+                return@SendConfirmationScreen
+            }
+            sendViewModel.onClickSend()
+        },
         sendEntryPointDestId = sendEntryPointDestId
     )
 }

@@ -334,6 +334,7 @@ sealed class AccountType : Parcelable {
         get() = when (this) {
             is EvmAddress -> true
             is BitcoinAddress -> true
+            is SolanaAddress -> true
             else -> false
         }
 

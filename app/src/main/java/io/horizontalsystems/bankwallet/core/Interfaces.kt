@@ -49,6 +49,7 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.solanakit.models.FullTransaction
+import io.horizontalsystems.solanakit.transactions.RawTransaction
 import io.horizontalsystems.tonkit.FriendlyAddress
 import io.horizontalsystems.tronkit.transaction.Fee
 import io.reactivex.Flowable
@@ -424,6 +425,12 @@ interface IAdapter {
 interface ISendSolanaAdapter {
     val availableBalance: BigDecimal
     suspend fun send(amount: BigDecimal, to: SolanaAddress): FullTransaction
+    fun craftSendTransaction(
+        fromAddress: SolanaAddress,
+        toAddress: SolanaAddress,
+        amount: BigDecimal,
+        recentBlockHash: String
+    ): RawTransaction
 }
 
 interface ISendTonAdapter {

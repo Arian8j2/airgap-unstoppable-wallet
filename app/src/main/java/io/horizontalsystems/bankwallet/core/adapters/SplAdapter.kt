@@ -8,6 +8,7 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.solanakit.SolanaKit
 import io.horizontalsystems.solanakit.models.Address
 import io.horizontalsystems.solanakit.models.FullTransaction
+import io.horizontalsystems.solanakit.transactions.RawTransaction
 import io.reactivex.Flowable
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx2.asFlowable
@@ -65,6 +66,15 @@ class SplAdapter(
         if (signer == null) throw Exception()
 
         return solanaKit.sendSpl(mintAddress, to, amount.movePointRight(decimal).toLong(), signer)
+    }
+
+    override fun craftSendTransaction(
+        fromAddress: Address,
+        toAddress: Address,
+        amount: BigDecimal,
+        recentBlockHash: String
+    ): RawTransaction {
+        TODO()
     }
 
     private fun convertToAdapterState(syncState: SolanaKit.SyncState): AdapterState = when (syncState) {

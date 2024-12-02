@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.core.managers.SolanaKitWrapper
 import io.horizontalsystems.solanakit.Signer
 import io.horizontalsystems.solanakit.models.Address
 import io.horizontalsystems.solanakit.transactions.BlockData
+import io.horizontalsystems.solanakit.transactions.PublishedTransactionInfo
 import io.horizontalsystems.solanakit.transactions.RawTransaction
 import java.math.BigDecimal
 
@@ -31,9 +32,8 @@ abstract class BaseSolanaAdapter(
         solanaKit.signTransaction(signer!!, rawTransaction)
     }
 
-    suspend fun publishTransaction(rawTransaction: RawTransaction) {
+    suspend fun publishTransaction(rawTransaction: RawTransaction): PublishedTransactionInfo =
         solanaKit.publish(rawTransaction)
-    }
 
     // IReceiveAdapter
 

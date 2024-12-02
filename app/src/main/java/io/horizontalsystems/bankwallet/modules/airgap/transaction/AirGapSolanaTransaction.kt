@@ -11,11 +11,16 @@ import io.horizontalsystems.bankwallet.modules.send.SendConfirmationScreen
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.solanakit.SolanaKit
 import io.horizontalsystems.solanakit.models.Address
+import io.horizontalsystems.solanakit.models.FullTransaction
+import io.horizontalsystems.solanakit.models.Transaction
+import io.horizontalsystems.solanakit.transactions.BlockData
+import io.horizontalsystems.solanakit.transactions.PublishedTransactionInfo
 import io.horizontalsystems.solanakit.transactions.RawTransaction
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.math.BigDecimal
+import java.time.Instant
 
 @Serializable
 @SerialName("solana")
@@ -52,7 +57,7 @@ data class AirGapSolanaTransaction(
 
     private fun toRawTransaction(): RawTransaction {
         return solanaAdapter!!.craftSendTransaction(
-            address,
+            Address(signerAddress),
             Address(to),
             amount,
             recentBlockHash
@@ -77,9 +82,35 @@ data class AirGapSolanaTransaction(
         val transaction = toRawTransaction()
         val signatures = (signature as AirGapSolanaSignature).signatures
         signatures.forEach {
-            transaction.addSignature(address, it)
+            transaction.addSignature(Address(signerAddress), it)
         }
-        solanaAdapter!!.publishTransaction(transaction)
+        val publishedInfo = solanaAdapter!!.publishTransaction(transaction)
+        val recentBlockData = solanaAdapter!!.recentBlockData
+        if (recentBlockData.hash == recentBlockHash) {
+            addTransactionToStorage(publishedInfo, recentBlockData)
+        }
+    }
+
+    private fun addTransactionToStorage(
+        publishedInfo: PublishedTransactionInfo,
+        recentBlockData: BlockData
+    ) {
+        val fullTransaction = FullTransaction(
+            Transaction(
+                hash = publishedInfo.transactionHash,
+                timestamp = Instant.now().epochSecond,
+                fee = SolanaKit.fee,
+                from = signerAddress,
+                to = to,
+                amount = amount,
+                pending = true,
+                blockHash = recentBlockData.hash,
+                lastValidBlockHeight = recentBlockData.lastValidBlockHeight,
+                base64Encoded = publishedInfo.base64Encoded
+            ),
+            listOf()
+        )
+        solanaAdapter!!.solanaKit.addTransactionToStorage(fullTransaction)
     }
 
     override fun isAdapterAvailable(): Boolean = solanaAdapter != null
@@ -100,8 +131,8 @@ data class AirGapSolanaTransaction(
         }
     }
 
-    private val address: Address by lazy {
+    private val signerAddress: String by lazy {
         val receiveAdapter = solanaAdapter!! as IReceiveAdapter
-        Address(receiveAdapter.receiveAddress)
+        receiveAdapter.receiveAddress
     }
 }

@@ -90,7 +90,7 @@ class TokenBalanceViewModel(
             balanceService.baseCurrency,
             balanceHiddenManager.balanceHidden,
             wallet.account.isWatchAccount,
-            wallet.account.type.supportsAirGap,
+            wallet.supportsAirGap,
             BalanceViewType.CoinThenFiat
         )
 

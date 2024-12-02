@@ -54,7 +54,7 @@ fun SendSolanaConfirmationScreen(
         memo = confirmationData.memo,
         rbfEnabled = confirmationData.rbfEnabled,
         onClickSend = {
-            if (sendViewModel.wallet.account.type.supportsAirGap) {
+            if (sendViewModel.wallet.supportsAirGap) {
                 sendViewModel.viewModelScope.launch {
                     val airGapTransaction = sendViewModel.craftAirGapTransaction()
                     navController.slideFromRight(

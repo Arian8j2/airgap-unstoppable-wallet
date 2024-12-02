@@ -330,14 +330,6 @@ sealed class AccountType : Parcelable {
             else -> false
         }
 
-    val supportsAirGap: Boolean
-        get() = when (this) {
-            is EvmAddress -> true
-            is BitcoinAddress -> true
-            is SolanaAddress -> true
-            else -> false
-        }
-
     fun evmAddress(chain: Chain) = when (this) {
         is Mnemonic -> Signer.address(seed, chain)
         is EvmPrivateKey -> Signer.address(key)

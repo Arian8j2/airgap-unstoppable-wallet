@@ -5,7 +5,6 @@ import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
 import io.horizontalsystems.bankwallet.entities.Address
-import io.horizontalsystems.bankwallet.entities.TransactionDataSortMode
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendConfirmationScreen
@@ -34,7 +33,6 @@ data class AirGapBitcoinTransaction(
     val to: String,
     val feeRate: Int,
     val unspentOutputs: List<SerializedUnspentOutput>,
-    val sortingType: TransactionDataSortMode,
     val rbfEnabled: Boolean
 ) : AirGapTransaction() {
 
@@ -114,7 +112,6 @@ data class AirGapBitcoinTransaction(
             feeRate = feeRate,
             unspentOutputs = getMappedUnspentOutputs(),
             pluginData = null,
-            transactionSorting = sortingType,
             rbfEnabled = rbfEnabled,
         )
         return extractSignature(signedTransaction)

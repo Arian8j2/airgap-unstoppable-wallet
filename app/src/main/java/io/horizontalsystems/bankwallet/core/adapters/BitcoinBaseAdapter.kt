@@ -281,17 +281,15 @@ abstract class BitcoinBaseAdapter(
         feeRate: Int,
         unspentOutputs: List<UnspentOutput>?,
         pluginData: Map<Byte, IPluginData>?,
-        transactionSorting: TransactionDataSortMode?,
         rbfEnabled: Boolean,
     ): FullTransaction {
-        val sortingType = getTransactionSortingType(transactionSorting)
         return kit.sign(
             address = address,
             memo = memo,
             value = (amount * satoshisInBitcoin).toLong(),
             senderPay = true,
             feeRate = feeRate,
-            sortType = sortingType,
+            sortType = TransactionDataSortType.None,
             unspentOutputs = unspentOutputs,
             pluginData = pluginData ?: mapOf(),
             rbfEnabled = rbfEnabled

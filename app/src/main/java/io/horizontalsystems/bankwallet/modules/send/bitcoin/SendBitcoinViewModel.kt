@@ -274,7 +274,6 @@ class SendBitcoinViewModel(
             addressState.validAddress!!.hex,
             feeRateState.feeRate!!,
             outputs,
-            btcBlockchainManager.transactionSortMode(adapter.blockchainType),
             localStorage.rbfEnabled
         )
     }

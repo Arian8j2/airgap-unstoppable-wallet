@@ -372,7 +372,6 @@ interface ISendBitcoinAdapter {
         feeRate: Int,
         unspentOutputs: List<UnspentOutput>?,
         pluginData: Map<Byte, IPluginData>?,
-        transactionSorting: TransactionDataSortMode?,
         rbfEnabled: Boolean,
     ): BitcoinFullTransaction
 

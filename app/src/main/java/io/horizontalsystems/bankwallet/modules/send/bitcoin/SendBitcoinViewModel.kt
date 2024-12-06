@@ -18,7 +18,6 @@ import io.horizontalsystems.bankwallet.core.managers.BtcBlockchainManager
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.airgap.transaction.AirGapBitcoinTransaction
-import io.horizontalsystems.bankwallet.modules.airgap.transaction.SerializedUnspentOutput
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.send.SendConfirmationData
 import io.horizontalsystems.bankwallet.modules.send.SendResult
@@ -262,7 +261,7 @@ class SendBitcoinViewModel(
             pluginState.pluginData
         )!!
         val outputs = info.unspentOutputs.map {
-            SerializedUnspentOutput(
+            AirGapBitcoinTransaction.SerializedUnspentOutput(
                 txHash = it.output.transactionHash,
                 txIndex = it.output.index,
                 value = it.output.value,

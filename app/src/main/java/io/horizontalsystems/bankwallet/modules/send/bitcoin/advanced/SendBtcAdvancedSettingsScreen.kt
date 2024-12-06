@@ -73,7 +73,7 @@ fun SendBtcAdvancedSettingsScreen(
     val rate = sendBitcoinViewModel.coinRate
     val blockchainType = sendBitcoinViewModel.blockchainType
     val lockTimeIntervals = sendBitcoinViewModel.lockTimeIntervals
-    val lockTimeEnabled = sendBitcoinViewModel.isLockTimeEnabled
+    val lockTimeEnabled = sendBitcoinViewModel.isLockTimeEnabled && !wallet.supportsAirGap
     val lockTimeInterval = sendUiState.lockTimeInterval
     val feeRate = sendUiState.feeRate
     val feeRateCaution = sendUiState.feeRateCaution
@@ -167,12 +167,14 @@ fun SendBtcAdvancedSettingsScreen(
                     }
 
                     VSpacer(24.dp)
-                    TransactionDataSortSettings(
-                        navController,
-                        viewModel.uiState.transactionSortTitle,
-                    ) {
-                        coroutineScope.launch {
-                            modalBottomSheetState.show()
+                    if (!wallet.supportsAirGap) {
+                        TransactionDataSortSettings(
+                            navController,
+                            viewModel.uiState.transactionSortTitle,
+                        ) {
+                            coroutineScope.launch {
+                                modalBottomSheetState.show()
+                            }
                         }
                     }
 

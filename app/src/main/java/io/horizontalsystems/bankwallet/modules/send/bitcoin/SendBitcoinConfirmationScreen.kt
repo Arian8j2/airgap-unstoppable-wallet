@@ -54,7 +54,7 @@ fun SendBitcoinConfirmationScreen(
         memo = confirmationData.memo,
         rbfEnabled = confirmationData.rbfEnabled,
         onClickSend = {
-            if (sendViewModel.wallet.supportsAirGap) {
+            if (sendViewModel.wallet.isAirGapWatchWallet) {
                 sendViewModel.viewModelScope.launch {
                     val input = sendViewModel.createAirGapInput()
                     navController.slideFromRight(

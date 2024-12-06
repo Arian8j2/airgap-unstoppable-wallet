@@ -27,7 +27,7 @@ data class Wallet(
     val badge
         get() = token.badge
 
-    val supportsAirGap: Boolean
+    val isAirGapWatchWallet: Boolean
         get() {
             val isNative = token.type is TokenType.Native
             return when (account.type) {

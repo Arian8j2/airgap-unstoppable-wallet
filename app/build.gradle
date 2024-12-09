@@ -16,7 +16,7 @@ plugins {
 android {
 
     defaultConfig {
-        applicationId "io.horizontalsystems.bankwallet"
+        applicationId "io.horizontalsystems.bankwallet.airgap"
         compileSdk compile_sdk_version
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version

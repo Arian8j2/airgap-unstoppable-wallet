@@ -1,5 +1,5 @@
 <resources>
-    <string name="App_Name" translatable="false">Unstoppable</string>
+    <string name="App_Name" translatable="false">Airgap Unstoppable</string>
     <string name="DeeplinkScheme" translatable="false">unstoppable</string>
 
     <!--Common-->

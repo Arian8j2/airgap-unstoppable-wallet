@@ -67,17 +67,6 @@ object GasPriceSerializer : KSerializer<GasPrice> {
         decoder.decodeSerializableValue(serializer).toGasPrice()
 }
 
-//object TransactionDataSortModeSerializer : KSerializer<TransactionDataSortMode> {
-//    override val descriptor: SerialDescriptor =
-//        PrimitiveSerialDescriptor("TransactionDataSortModeSerializer", PrimitiveKind.STRING)
-//
-//    override fun serialize(encoder: Encoder, value: TransactionDataSortMode) =
-//        encoder.encodeString(value.raw)
-//
-//    override fun deserialize(decoder: Decoder): TransactionDataSortMode =
-//        TransactionDataSortMode.fromRaw(decoder.decodeString())!!
-//}
-
 object BlockchainTypeSerializer : KSerializer<BlockchainType> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("BlockchainTypeSerializer", PrimitiveKind.STRING)

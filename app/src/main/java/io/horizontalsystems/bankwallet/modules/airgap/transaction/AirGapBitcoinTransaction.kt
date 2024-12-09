@@ -158,6 +158,7 @@ data class AirGapBitcoinTransaction(
     )
 
     override fun sign(): AirGapSignature {
+        // TODO: make sign not change bitcoin address
         val signedTransaction = adapter!!.sign(
             amount = amount,
             address = to,

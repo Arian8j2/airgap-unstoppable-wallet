@@ -566,7 +566,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         coroutineScope.launch {
             EthereumKit.init()
             adapterManager.startAdapterManager()
-            marketKit.sync()
+            // i don't like marketKit getting synced and overwriting
+            // all initial coins list that are declared in marketKit
+            // marketKit.sync()
             rateAppManager.onAppLaunch()
             nftMetadataSyncer.start()
             pinComponent.initDefaultPinLevel()

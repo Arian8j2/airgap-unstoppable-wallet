@@ -44,7 +44,6 @@ data class AirGapBitcoinTransaction(
         val address: String
     ) {
         fun toUnspentOutput(
-            index: Int,
             addressConverter: AddressConverterChain,
             publicKey: PublicKey
         ): UnspentOutput {
@@ -52,7 +51,7 @@ data class AirGapBitcoinTransaction(
             trxOutput.value = value
             trxOutput.address = address
             trxOutput.transactionHash = txHash
-            trxOutput.index = index
+            trxOutput.index = txIndex
             val addressInfo = addressConverter.convert(address)
             trxOutput.lockingScript = addressInfo.lockingScript
             trxOutput.lockingScriptPayload = addressInfo.lockingScriptPayload
@@ -67,8 +66,8 @@ data class AirGapBitcoinTransaction(
     }
 
     private fun getMappedUnspentOutputs(): List<UnspentOutput> =
-        unspentOutputs.mapIndexed { index, it ->
-            it.toUnspentOutput(index, addressConverter, adapter!!.getPublicKey())
+        unspentOutputs.map {
+            it.toUnspentOutput(addressConverter, adapter!!.getPublicKey())
         }
 
     private fun getMappedInputToSigns(): List<InputToSign> =

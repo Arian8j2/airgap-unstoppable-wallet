@@ -21,7 +21,6 @@ import io.horizontalsystems.bitcoincore.AbstractKit
 import io.horizontalsystems.bitcoincore.BitcoinCore
 import io.horizontalsystems.bitcoincore.core.IPluginData
 import io.horizontalsystems.bitcoincore.models.Address
-import io.horizontalsystems.bitcoincore.models.PublicKey
 import io.horizontalsystems.bitcoincore.models.TransactionDataSortType
 import io.horizontalsystems.bitcoincore.models.TransactionFilterType
 import io.horizontalsystems.bitcoincore.models.TransactionInfo
@@ -32,6 +31,7 @@ import io.horizontalsystems.bitcoincore.rbf.ReplacementTransactionInfo
 import io.horizontalsystems.bitcoincore.storage.FullTransaction
 import io.horizontalsystems.bitcoincore.storage.UnspentOutput
 import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
+import io.horizontalsystems.bitcoincore.transactions.builder.MutableTransaction
 import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.core.BackgroundManagerState
 import io.horizontalsystems.hodler.HodlerOutputData
@@ -274,7 +274,7 @@ abstract class BitcoinBaseAdapter(
         }
     }
 
-    fun sign(
+    fun buildTransaction(
         amount: BigDecimal,
         address: String,
         memo: String?,
@@ -282,8 +282,8 @@ abstract class BitcoinBaseAdapter(
         unspentOutputs: List<UnspentOutput>?,
         pluginData: Map<Byte, IPluginData>?,
         rbfEnabled: Boolean,
-    ): FullTransaction {
-        return kit.sign(
+    ): MutableTransaction {
+        return kit.buildTransaction(
             address = address,
             memo = memo,
             value = (amount * satoshisInBitcoin).toLong(),
@@ -293,44 +293,7 @@ abstract class BitcoinBaseAdapter(
             unspentOutputs = unspentOutputs,
             pluginData = pluginData ?: mapOf(),
             rbfEnabled = rbfEnabled
-        )
-    }
-
-    fun getPublicKey(): PublicKey = kit.receivePublicKey()
-
-    fun publish(transaction: FullTransaction) {
-        kit.publish(transaction)
-    }
-
-    fun bitcoinFeeInfoWithSpecificOutputs(
-        amount: BigDecimal,
-        feeRate: Int,
-        address: String?,
-        memo: String?,
-        unspentOutputs: List<UnspentOutput>,
-        pluginData: Map<Byte, IPluginData>?
-    ): BitcoinFeeInfo? {
-        return try {
-            val satoshiAmount = (amount * satoshisInBitcoin).toLong()
-            kit.sendInfoWithSpecificOutputs(
-                value = satoshiAmount,
-                address = address,
-                memo = memo,
-                senderPay = true,
-                feeRate = feeRate,
-                unspentOutputs = unspentOutputs,
-                pluginData = pluginData ?: mapOf()
-            ).let {
-                BitcoinFeeInfo(
-                    unspentOutputs = it.unspentOutputs,
-                    fee = satoshiToBTC(it.fee),
-                    changeValue = satoshiToBTC(it.changeValue),
-                    changeAddress = it.changeAddress
-                )
-            }
-        } catch (e: Exception) {
-            null
-        }
+        )!!
     }
 
     fun send(
@@ -524,7 +487,7 @@ abstract class BitcoinBaseAdapter(
         return BigDecimal(value).divide(satoshisInBitcoin, decimal, roundingMode)
     }
 
-    private fun satoshiToBTC(value: Long?): BigDecimal? {
+    fun satoshiToBTC(value: Long?): BigDecimal? {
         return satoshiToBTC(value ?: return null)
     }
 

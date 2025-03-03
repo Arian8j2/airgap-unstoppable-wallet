@@ -265,7 +265,6 @@ class SendBitcoinViewModel(
                 txHash = it.output.transactionHash,
                 txIndex = it.output.index,
                 value = it.output.value,
-                address = it.output.address!!
             )
         }
         return AirGapBitcoinTransaction(

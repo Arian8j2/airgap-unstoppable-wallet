@@ -210,8 +210,10 @@ fun SendBitcoinScreen(
                 }
 
                 VSpacer(12.dp)
-                HSMemoInput(maxLength = 120) {
-                    viewModel.onEnterMemo(it)
+                if (!wallet.isAirGapWatchWallet) {
+                    HSMemoInput(maxLength = 120) {
+                        viewModel.onEnterMemo(it)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))

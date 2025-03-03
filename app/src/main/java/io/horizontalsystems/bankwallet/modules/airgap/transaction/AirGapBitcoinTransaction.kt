@@ -3,23 +3,21 @@ package io.horizontalsystems.bankwallet.modules.airgap.transaction
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
+import io.horizontalsystems.bankwallet.core.adapters.BitcoinBaseAdapter
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendConfirmationScreen
-import io.horizontalsystems.bitcoincore.models.PublicKey
 import io.horizontalsystems.bitcoincore.models.Transaction
-import io.horizontalsystems.bitcoincore.models.TransactionInput
 import io.horizontalsystems.bitcoincore.models.TransactionOutput
 import io.horizontalsystems.bitcoincore.storage.FullTransaction
-import io.horizontalsystems.bitcoincore.storage.InputToSign
 import io.horizontalsystems.bitcoincore.storage.UnspentOutput
 import io.horizontalsystems.bitcoincore.transactions.builder.MutableTransaction
 import io.horizontalsystems.bitcoincore.utils.AddressConverterChain
 import io.horizontalsystems.bitcoincore.utils.Base58AddressConverter
 import io.horizontalsystems.bitcoincore.utils.SegwitAddressConverter
 import io.horizontalsystems.bitcoinkit.MainNet
+import io.horizontalsystems.bitcoinkit.TestNet
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
@@ -41,40 +39,30 @@ data class AirGapBitcoinTransaction(
         val txHash: @Contextual ByteArray,
         val txIndex: Int,
         val value: Long,
-        val address: String
-    ) {
-        fun toUnspentOutput(
-            addressConverter: AddressConverterChain,
-            publicKey: PublicKey
-        ): UnspentOutput {
+    )
+
+    private fun getMappedUnspentOutputs(): List<UnspentOutput> =
+        unspentOutputs.map {
             val trxOutput = TransactionOutput()
-            trxOutput.value = value
+            val address = adapter!!.receiveAddress
+            trxOutput.value = it.value
             trxOutput.address = address
-            trxOutput.transactionHash = txHash
-            trxOutput.index = txIndex
+            trxOutput.transactionHash = it.txHash
+            trxOutput.index = it.txIndex
             val addressInfo = addressConverter.convert(address)
             trxOutput.lockingScript = addressInfo.lockingScript
             trxOutput.lockingScriptPayload = addressInfo.lockingScriptPayload
             trxOutput.scriptType = addressInfo.scriptType
-            return UnspentOutput(
+            UnspentOutput(
                 output = trxOutput,
-                publicKey = publicKey,
+                publicKey = adapter!!.kit.receivePublicKey(),
                 transaction = Transaction(),
                 block = null
             )
         }
-    }
-
-    private fun getMappedUnspentOutputs(): List<UnspentOutput> =
-        unspentOutputs.map {
-            it.toUnspentOutput(addressConverter, adapter!!.getPublicKey())
-        }
-
-    private fun getMappedInputToSigns(): List<InputToSign> =
-        getMappedUnspentOutputs().map { inputToSign(it) }
 
     val addressConverter: AddressConverterChain by lazy {
-        val network = MainNet()
+        val network = if (adapter!!.isMainNet) MainNet() else TestNet()
         AddressConverterChain().apply {
             prependConverter(SegwitAddressConverter(network.addressSegwitHrp))
             prependConverter(
@@ -86,32 +74,11 @@ data class AirGapBitcoinTransaction(
         }
     }
 
-    private fun inputToSign(unspentOutput: UnspentOutput): InputToSign {
-        val previousOutput = unspentOutput.output
-        val sequence = if (rbfEnabled) {
-            0x00
-        } else {
-            0xfffffffe
-        }
-        val transactionInput = TransactionInput(
-            previousOutput.transactionHash,
-            previousOutput.index.toLong(),
-            sequence = sequence
-        )
-        return InputToSign(transactionInput, previousOutput, unspentOutput.publicKey)
-    }
-
     @Composable
     override fun ShowSigningConfirmationScreen(navController: NavController) {
-        val outputs = getMappedUnspentOutputs()
-        val feeInfo = adapter!!.bitcoinFeeInfoWithSpecificOutputs(
-            amount,
-            feeRate,
-            to,
-            memo = null,
-            unspentOutputs = outputs,
-            pluginData = null
-        )!!
+        val transaction = createTransaction()
+        val inputsTotalValue = transaction.inputsToSign.sumOf { it.previousOutput.value }
+        val outputsTotalValue = transaction.recipientValue + transaction.changeValue
         SendConfirmationScreen(
             navController = navController,
             coinMaxAllowedDecimals = wallet!!.token.decimals,
@@ -126,7 +93,7 @@ data class AirGapBitcoinTransaction(
             amount = amount,
             address = Address(to),
             contact = null,
-            fee = feeInfo.fee,
+            fee = adapter!!.satoshiToBTC(inputsTotalValue - outputsTotalValue)!!,
             lockTimeInterval = null,
             memo = null,
             rbfEnabled = rbfEnabled,
@@ -141,23 +108,22 @@ data class AirGapBitcoinTransaction(
     data class AirGapBitcoinSignature(
         val isSegwit: Boolean,
         val signatures: List<Signature>,
-        val outputs: List<Output>
     ) : AirGapSignature()
 
     @Serializable
     data class Signature(
-        val witness: List<@Contextual ByteArray>,
-        val sigScript: @Contextual ByteArray
-    )
-
-    @Serializable
-    data class Output(
-        val amount: Long,
-        val address: String
+        val witness: List<@Contextual ByteArray>?,
+        val sigScript: @Contextual ByteArray?
     )
 
     override fun sign(): AirGapSignature {
-        val signedTransaction = adapter!!.sign(
+        val transaction = createTransaction()
+        adapter!!.kit.sign(transaction)
+        return extractSignature(transaction.build())
+    }
+
+    private fun createTransaction(): MutableTransaction {
+        val transaction = adapter!!.buildTransaction(
             amount = amount,
             address = to,
             memo = null,
@@ -166,61 +132,46 @@ data class AirGapBitcoinTransaction(
             pluginData = null,
             rbfEnabled = rbfEnabled,
         )
-        return extractSignature(signedTransaction)
+        transaction.transaction.lockTime = 0
+        return transaction
     }
 
     private fun extractSignature(transaction: FullTransaction): AirGapSignature {
         val inputs = transaction.inputs.map {
             Signature(
-                witness = it.witness,
-                sigScript = it.sigScript
-            )
-        }
-        val outputs = transaction.outputs.map {
-            Output(
-                amount = it.value,
-                address = it.address!!
+                witness = it.witness.takeIf { it.isNotEmpty() },
+                sigScript = it.sigScript.takeIf { it.isNotEmpty() }
             )
         }
         return AirGapBitcoinSignature(
             isSegwit = transaction.header.segwit,
             signatures = inputs,
-            outputs = outputs
         )
     }
 
     override suspend fun publish(signature: AirGapSignature) {
         val btcSignature = signature as AirGapBitcoinSignature
-        val mutableTransaction = MutableTransaction()
+        val transaction = createTransaction()
+        if (transaction.inputsToSign.size != btcSignature.signatures.size) {
+            throw Throwable("Signatures size don't match inputs")
+        }
 
-        getMappedInputToSigns().forEachIndexed { index, it ->
+        transaction.inputsToSign.forEachIndexed { index, it ->
             val signatures = btcSignature.signatures[index]
-            it.input.witness = signatures.witness
-            it.input.sigScript = signatures.sigScript
-            mutableTransaction.addInput(it)
+            it.input.witness = signatures.witness.orEmpty()
+            it.input.sigScript = signatures.sigScript ?: ByteArray(0)
         }
-
-        mutableTransaction.outputs = btcSignature.outputs.mapIndexed { index, it ->
-            val address = addressConverter.convert(it.address)
-            TransactionOutput(
-                it.amount,
-                index,
-                address.lockingScript,
-                address.scriptType
-            )
-        }
-
-        mutableTransaction.transaction.segwit = btcSignature.isSegwit
-        adapter!!.publish(mutableTransaction.build())
+        transaction.transaction.segwit = btcSignature.isSegwit
+        adapter!!.kit.publish(transaction.build())
     }
 
     override fun isAdapterAvailable(): Boolean = adapter != null
 
     override fun adapterName(): String = "Bitcoin"
 
-    private val adapter: ISendBitcoinAdapter? by lazy {
+    private val adapter: BitcoinBaseAdapter? by lazy {
         wallet?.let {
-            App.adapterManager.getAdapterForWallet(it) as ISendBitcoinAdapter
+            App.adapterManager.getAdapterForWallet(it) as BitcoinBaseAdapter
         }
     }
 
@@ -228,7 +179,7 @@ data class AirGapBitcoinTransaction(
         val account = App.accountManager.activeAccount!!
         val wallets = App.walletManager.getWallets(account)
         wallets.find {
-            App.adapterManager.getAdapterForWallet(it) is ISendBitcoinAdapter
+            App.adapterManager.getAdapterForWallet(it) is BitcoinBaseAdapter
         }
     }
 }
